@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday Rohan — Enchanted Storybook</title>
+
+<!-- Google Fonts for fairy-tale vibes -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Great+Vibes&family=EB+Garamond:opsz,wght@8..14,400;8..14,600;8..14,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --midnight: #0b0f2c;
+    --plum: #2a0a4a;
+    --violet: #3d1b64;
+    --gold: #ffd166;
+    --gold-soft:#ffe8a3;
+    --rose:#ff2f6b;
+    --rose-soft:#ff79a8;
+    --pink:#ff4d6d;
+    --lav:#a675ff;
+    --spark:#ffd6a5;
+    --white:#fff;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body{
+    margin:0;
+    color:var(--white);
+    background:
+      radial-gradient(1200px 700px at 70% -20%, #5c25b6 0%, transparent 60%),
+      radial-gradient(900px 600px at -20% 30%, #1b2f7a 0%, transparent 60%),
+      linear-gradient(180deg, #0a0f2c 0%, #140a2c 100%);
+    font-family: "EB Garamond", serif;
+    overflow:hidden;
+  }
+
+  /* Sparkly background stars */
+  .sparkles{
+    position:fixed; inset:0; pointer-events:none;
+    overflow:hidden; z-index:1;
+  }
+  .sparkle{
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background: radial-gradient(circle, var(--gold-soft), rgba(255,255,255,0) 60%);
+    opacity:0.65; animation:twinkle 3.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px var(--gold));
+  }
+  @keyframes twinkle{
+    0%,100%{ transform:scale(0.9); opacity:0.45; }
+    50%{ transform:scale(1.4); opacity:0.95; }
+  }
+
+  /* Falling rose petals */
+  .petals{ position:fixed; inset:0; pointer-events:none; z-index:3; overflow:hidden; }
+  .petal{
+    position:absolute; width:14px; height:10px; border-radius:10px 10px 10px 0;
+    background: radial-gradient(70% 60% at 40% 30%, var(--rose) 0%, var(--rose-soft) 60%, rgba(255,255,255,0.2) 100%);
+    box-shadow:0 0 6px rgba(255,79,120,0.5);
+    transform: rotate(15deg);
+    opacity:0.8; filter: blur(0.1px);
+    animation: fall linear forwards, sway ease-in-out infinite;
+  }
+  @keyframes fall{
+    0%{ transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    10%{ opacity:0.85; }
+    100%{ transform: translateY(110vh) rotate(180deg); opacity:0; }
+  }
+  @keyframes sway{
+    0%{ margin-left:0; transform: translateX(0) rotate(10deg); }
+    50%{ margin-left:10px; transform: translateX(12px) rotate(25deg); }
+    100%{ margin-left:0; transform: translateX(0) rotate(10deg); }
+  }
+
+  /* Floating balloons (appear on the Ballroom page) */
+  .balloons{ position:fixed; inset:0; pointer-events:none; z-index:2; display:none; overflow:hidden;}
+  .balloons.active{ display:block; }
+  .balloon{
+    position:absolute; width:40px; height:54px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(60% 80% at 40% 35%, rgba(255,255,255,0.9), rgba(255,255,255,0) 40%), var(--balloonColor, #ff7eb6);
+    box-shadow: inset -6px -8px 14px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.35);
+    animation: floatUp var(--speed, 10s) linear infinite;
+  }
+  .balloon::after{
+    content:""; position:absolute; left:50%; bottom:-14px; width:2px; height:22px;
+    background:rgba(255,255,255,0.7); transform:translateX(-50%);
+  }
+  @keyframes floatUp{
+    0%{ transform: translateY(105vh) translateX(0) scale(1); opacity:0; }
+    10%{ opacity:1; }
+    100%{ transform: translateY(-15vh) translateX(var(--drift, 20px)) scale(1.02); opacity:0; }
+  }
+
+  /* Storybook container + navigation */
+  .storybook{
+    position:relative; height:100vh; width:100vw; display:flex; flex-direction:column;
+    z-index:5;
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 14px; color:#ffd; font-family:"Cinzel", serif; letter-spacing:0.5px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    z-index:10;
+  }
+  .nav .brand{
+    font-weight:700; font-size:14px; opacity:0.9;
+  }
+  .nav button{
+    background:rgba(255,255,255,0.07);
+    color:var(--gold); border:1px solid rgba(255,209,102,0.5);
+    font-family:"Cinzel", serif;
+    padding:8px 12px; border-radius:999px; cursor:pointer;
+    transition: all .25s ease; text-shadow:0 0 6px rgba(255,209,102,0.6);
+  }
+  .nav button:hover{ transform: translateY(-1px); box-shadow:0 4px 18px rgba(255,209,102,0.25); }
+  .indicator{ font-size:12px; opacity:0.85; }
+
+  /* Pages + page turn */
+  .pages{ position:relative; flex:1; perspective: 1400px; overflow:hidden; }
+  .page{
+    position:absolute; inset:0; padding:6vh 7vw; display:none; align-items:center; justify-content:center; text-align:center;
+    background: radial-gradient(1800px 900px at 50% 0%, rgba(255,255,255,0.03), rgba(255,255,255,0)) , transparent;
+    backdrop-filter: blur(0.2px);
+  }
+  .page.active{ display:flex; }
+  .page h1, .page h2, .page p { margin:0.4em 0; }
+  .page h1.title{
+    font-family:"Great Vibes", cursive; font-weight:400; font-size: clamp(44px, 7vw, 96px); line-height:1.05;
+    color:#fff; text-shadow: 0 0 12px rgba(255,255,255,0.3), 0 0 32px rgba(255,255,255,0.2);
+  }
+  .page .sub{
+    font-family:"Cinzel", serif; font-size: clamp(14px, 2.1vw, 20px); letter-spacing:1px; opacity:0.85;
+  }
+  .glow{
+    background: linear-gradient(90deg, #fff 0%, var(--gold) 30%, #fff 60%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 10px rgba(255,209,102,0.6), 0 0 30px rgba(255,209,102,0.35);
+    background-size: 200% auto; animation: shine 4.8s linear infinite;
+  }
+  @keyframes shine{
+    0%{ background-position: 0% 50%; }
+    100%{ background-position: 200% 50%; }
+  }
+
+  /* Cover layout */
+  .cover-inner{
+    display:grid; place-items:center; gap:24px; max-width:980px; width:100%;
+  }
+  .cta{
+    font-family:"Cinzel", serif; font-size: clamp(14px,2vw,18px); opacity:0.85;
+  }
+
+  /* Enchanted rose (clickable) */
+  .rose-dome{
+    position:relative; width:140px; height:200px; margin:auto; cursor:pointer;
+    display:grid; place-items:center;
+    border-radius:120px 120px 16px 16px / 160px 160px 12px 12px;
+    background: radial-gradient(140px 200px at 50% 70%, rgba(255,255,255,0.05), rgba(255,255,255,0)),
+                linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow:
+      inset 0 0 18px rgba(255,255,255,0.18),
+      0 10px 30px rgba(0,0,0,0.4),
+      0 0 40px rgba(255, 99, 132, 0.25);
+    overflow:hidden;
+  }
+  .rose-emoji{
+    font-size:74px; filter: drop-shadow(0 0 14px rgba(255,47,107,0.8)) drop-shadow(0 0 30px rgba(255,47,107,0.6));
+    transform: translateY(6px);
+    animation: rosePulse 2.8s ease-in-out infinite;
+  }
+  @keyframes rosePulse{
+    0%,100%{ transform: translateY(6px) scale(1); filter: drop-shadow(0 0 14px rgba(255,47,107,0.8)) drop-shadow(0 0 30px rgba(255,47,107,0.5)); }
+    50%{ transform: translateY(3px) scale(1.05); filter: drop-shadow(0 0 22px rgba(255,47,107,1)) drop-shadow(0 0 44px rgba(255,47,107,0.9)); }
+  }
+  .dome-gloss{
+    position:absolute; top:8px; left:18px; width:45%; height:60%;
+    background: radial-gradient(120px 160px at 0% 0%, rgba(255,255,255,0.25), rgba(255,255,255,0) 70%);
+    border-radius: 80% 30% 40% 60% / 50% 70% 40% 60%;
+    pointer-events:none; transform: rotate(-8deg);
+  }
+  .rose-message{
+    position:absolute; bottom:-14px; left:50%; transform:translateX(-50%);
+    background: rgba(20, 5, 35, 0.7);
+    border:1px solid rgba(255,255,255,0.25);
+    padding:10px 12px; border-radius:10px; font-size:14px; line-height:1.3;
+    width: 240px; color:#ffe; opacity:0; pointer-events:none;
+  }
+  .rose-message.show{ animation: popIn .55s ease forwards; }
+  @keyframes popIn{
+    0%{ transform: translateX(-50%) translateY(10px) scale(0.9); opacity:0; }
+    100%{ transform: translateX(-50%) translateY(0) scale(1); opacity:1; }
+  }
+
+  /* Castle silhouette (SVG container) */
+  .castle-wrap{
+    position:relative; width:min(900px, 95vw); margin: 0 auto; opacity:0.95;
+    filter: drop-shadow(0 0 30px rgba(166,117,255,0.25));
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-6px); }
+  }
+
+  /* Ballroom cameo placeholder */
+  .cameo{
+    width:min(820px, 92vw); aspect-ratio: 16/9; margin:auto;
+    background:
+      radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0)),
+      linear-gradient(145deg, rgba(166,117,255,0.15), rgba(255,77,109,0.12));
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:18px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35), inset 0 0 60px rgba(255,255,255,0.06);
+    position:relative; overflow:hidden;
+  }
+  .silhouette{
+    position:absolute; inset:0; pointer-events:none; filter: drop-shadow(0 0 18px rgba(255,209,102,0.25)) saturate(1.05);
+  }
+  .silhouette .belle{
+    position:absolute; left:18%; bottom:-4%; width:32%;
+    background: radial-gradient(60% 60% at 50% 20%, rgba(255,255,255,0.2), rgba(255,255,255,0) 60%), linear-gradient(180deg, #ffb3c7, #ff4d6d);
+    clip-path: polygon(50% 0%, 60% 8%, 65% 18%, 70% 35%, 72% 48%, 80% 65%, 88% 80%, 78% 88%, 62% 90%, 42% 94%, 26% 88%, 18% 70%, 22% 58%, 28% 46%, 34% 34%, 38% 24%, 44% 12%);
+    opacity:0.85;
+  }
+  .silhouette .beast{
+    position:absolute; right:18%; bottom:-6%; width:34%;
+    background: radial-gradient(60% 60% at 50% 25%, rgba(255,255,255,0.2), rgba(255,255,255,0) 60%), linear-gradient(180deg, #a675ff, #6132e1);
+    clip-path: polygon(40% 0%, 50% 6%, 58% 14%, 64% 20%, 68% 30%, 69% 42%, 72% 56%, 78% 66%, 86% 76%, 80% 88%, 62% 92%, 40% 94%, 22% 90%, 18% 76%, 24% 60%, 28% 45%, 30% 32%, 34% 20%, 36% 12%);
+    opacity:0.85;
+  }
+  .cameo .floor{
+    position:absolute; left:-8%; right:-8%; bottom:-26%; height:60%;
+    background: radial-gradient(80% 120% at 50% 0%, rgba(255,209,102,0.25), rgba(255,209,102,0) 60%);
+    transform: rotate(-2deg);
+  }
+
+  .page p{ font-size: clamp(16px, 2.4vw, 20px); opacity:0.92; }
+
+  /* Page-turn animations */
+  .turn-in-right{ display:flex !important; animation: turnInRight 900ms ease both; transform-origin: right center; }
+  .turn-in-left{ display:flex !important; animation: turnInLeft 900ms ease both; transform-origin: left center; }
+  .turn-out-left{ display:flex !important; animation: turnOutLeft 900ms ease both; transform-origin: left center; }
+  .turn-out-right{ display:flex !important; animation: turnOutRight 900ms ease both; transform-origin: right center; }
+  @keyframes turnInRight{
+    0%{ opacity:0; transform: rotateY(-80deg) scale(0.98); }
+    100%{ opacity:1; transform: rotateY(0deg) scale(1); }
+  }
+  @keyframes turnInLeft{
+    0%{ opacity:0; transform: rotateY(80deg) scale(0.98); }
+    100%{ opacity:1; transform: rotateY(0deg) scale(1); }
+  }
+  @keyframes turnOutLeft{
+    0%{ opacity:1; transform: rotateY(0deg) scale(1); }
+    100%{ opacity:0; transform: rotateY(-80deg) scale(0.98); }
+  }
+  @keyframes turnOutRight{
+    0%{ opacity:1; transform: rotateY(0deg) scale(1); }
+    100%{ opacity:0; transform: rotateY(80deg) scale(0.98); }
+  }
+
+  /* Footer */
+  footer{
+    position:relative; z-index:10; display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:10px 10px 14px; font-size: 13px; color:#ffe; opacity:0.9;
+  }
+  footer a{ color: var(--gold); text-decoration:none; border-bottom:1px dotted rgba(255,209,102,0.6); }
+  footer a:hover{ text-shadow:0 0 10px rgba(255,209,102,0.6); }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce){
+    .sparkle, .rose-emoji, .castle-wrap, .turn-in-right, .turn-in-left, .turn-out-left, .turn-out-right, .balloon{
+      animation-duration: 1ms !important; animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Golden sparkles -->
+  <div class="sparkles" aria-hidden="true"></div>
+
+  <!-- Falling rose petals -->
+  <div class="petals" aria-hidden="true"></div>
+
+  <!-- Floating balloons (appear on Page 3) -->
+  <div class="balloons" aria-hidden="true"></div>
+
+  <div class="storybook">
+    <div class="nav">
+      <div class="brand">Beauty & the Beast Birthday Storybook</div>
+      <div class="indicator" id="indicator">Page 1 / 6</div>
+      <div>
+        <button id="prevBtn" aria-label="Previous page">⟨ Prev</button>
+        <button id="nextBtn" aria-label="Next page">Next ⟩</button>
+      </div>
+    </div>
+
+    <div class="pages" id="pages">
+      <!-- Page 1: Cover -->
+      <section class="page active" data-bg="cover">
+        <div class="cover-inner">
+          <h1 class="title glow">Happy Birthday<br>Rohan 🎂✨</h1>
+          <div class="sub">A whimsical Beauty & the Beast–themed celebration</div>
+
+          <div class="rose-dome" id="rose" aria-label="Enchanted rose — tap for a secret">
+            <div class="dome-gloss"></div>
+            <div class="rose-emoji" aria-hidden="true">🌹</div>
+            <div class="rose-message" id="roseMsg">Tap the enchanted rose to reveal a secret wish...</div>
+          </div>
+
+          <div class="cta">Swipe or use your arrow keys to turn pages. Easter eggs await 🌟</div>
+        </div>
+      </section>
+
+      <!-- Page 2: Enchanted Castle -->
+      <section class="page" data-bg="castle">
+        <div>
+          <h2 class="title">In an Enchanted Castle...</h2>
+          <p>
+            Under lanterned skies and golden starlight, magic gathers to celebrate
+            the radiant heart of <strong>Rohan</strong>. May the night sing with
+            joy and the halls glow with wonder.
+          </p>
+          <div class="castle-wrap" aria-hidden="true">
+            <!-- Simple SVG castle silhouette (stylized) -->
+            <svg viewBox="0 0 1200 500" width="100%" height="100%" role="img" aria-label="Enchanted castle silhouette">
+              <defs>
+                <linearGradient id="castleGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#bda7ff" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#7a5af8" stop-opacity="0.7"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="1200" height="500" fill="transparent"/>
+              <!-- ground haze -->
+              <ellipse cx="600" cy="440" rx="520" ry="80" fill="rgba(255,255,255,0.06)"/>
+              <!-- towers -->
+              <g fill="url(#castleGrad)" opacity="0.95">
+                <rect x="240" y="200" width="80" height="210" rx="6"/>
+                <polygon points="240,200 280,120 320,200"/>
+                <rect x="400" y="170" width="120" height="240" rx="8"/>
+                <polygon points="400,170 460,70 520,170"/>
+                <rect x="560" y="220" width="90" height="190" rx="6"/>
+                <polygon points="560,220 605,145 650,220"/>
+                <rect x="680" y="150" width="160" height="260" rx="10"/>
+                <polygon points="680,150 760,35 840,150"/>
+                <rect x="890" y="210" width="80" height="200" rx="6"/>
+                <polygon points="890,210 930,140 970,210"/>
+              </g>
+              <!-- windows -->
+              <g fill="rgba(255,209,102,0.85)">
+                <rect x="420" y="210" width="16" height="26" rx="3"/>
+                <rect x="460" y="230" width="16" height="26" rx="3"/>
+                <rect x="505" y="210" width="16" height="26" rx="3"/>
+
+                <rect x="705" y="210" width="18" height="28" rx="3"/>
+                <rect x="740" y="240" width="18" height="28" rx="3"/>
+                <rect x="775" y="210" width="18" height="28" rx="3"/>
+
+                <rect x="255" y="260" width="14" height="22" rx="3"/>
+                <rect x="291" y="260" width="14" height="22" rx="3"/>
+
+                <rect x="905" y="260" width="14" height="22" rx="3"/>
+                <rect x="941" y="260" width="14" height="22" rx="3"/>
+              </g>
+              <!-- banner flags -->
+              <g fill="rgba(255,77,109,0.9)">
+                <polygon points="460,70 485,90 460,102"/>
+                <polygon points="760,35 784,60 760,70"/>
+                <polygon points="605,145 626,164 605,172"/>
+                <polygon points="280,120 300,140 280,150"/>
+                <polygon points="930,140 950,160 930,170"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 3: The Ballroom Waltz -->
+      <section class="page" data-bg="ballroom">
+        <div>
+          <h2 class="title">A Waltz by Starlight</h2>
+          <p>
+            Beauty (Rohan) and the Beast twirl beneath chandeliers of dreams — balloons float,
+            music shimmers, and wishes glow like gold.
+          </p>
+          <div class="cameo" aria-label="Ballroom scene — replace with your own illustration if desired">
+            <div class="silhouette">
+              <div class="belle"></div>
+              <div class="beast"></div>
+            </div>
+            <div class="floor"></div>
+          </div>
+          <p style="margin-top:16px; opacity:0.85">Tip: Press B for more balloons 🎈</p>
+        </div>
+      </section>
+
+      <!-- Page 4: Secrets of the Rose -->
+      <section class="page" data-bg="rose">
+        <div>
+          <h2 class="title">Secrets of the Enchanted Rose</h2>
+          <p>
+            Every petal carries a promise. Tap the rose to discover hidden notes,
+            blessings, and little surprises for <strong>Rohan</strong>.
+          </p>
+          <div class="rose-dome" id="rose2" aria-label="Enchanted rose — tap again for secrets">
+            <div class="dome-gloss"></div>
+            <div class="rose-emoji" aria-hidden="true">🌹</div>
+            <div class="rose-message" id="roseMsg2">Psst... it knows more secrets than you think.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 5: Wishes & Blessings -->
+      <section class="page" data-bg="wishes">
+        <div>
+          <h2 class="title">Wishes & Blessings</h2>
+          <p id="typewriter" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- Page 6: Finale -->
+      <section class="page" data-bg="finale">
+        <div>
+          <h2 class="title glow">May your year be full of magic, laughter, and love</h2>
+          <p>
+            From the first note of the waltz to the last sparkle of starlight —
+            here’s to you, <strong>Rohan</strong>. Happily ever after starts now. 💛
+          </p>
+          <p style="opacity:0.8; margin-top:10px">Turn back any time to relive the magic.</p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Made with ❤️ by GIRGIR_03 ·
+      <a href="https://www.instagram.com/r7x_163/" target="_blank" rel="noopener">Instagram: @r7x_163</a>
+    </footer>
+  </div>
+
+<script>
+  // Utility: once listener
+  function once(el, ev, fn){
+    const h = (e)=>{ el.removeEventListener(ev, h); fn(e); };
+    el.addEventListener(ev, h);
+  }
+
+  // Sparkles
+  const sparkles = document.querySelector(".sparkles");
+  function spawnSparkles(n=80){
+    const frag = document.createDocumentFragment();
+    for(let i=0;i<n;i++){
+      const s = document.createElement("span");
+      s.className = "sparkle";
+      s.style.left = Math.random()*100 + "vw";
+      s.style.top = Math.random()*100 + "vh";
+      s.style.animationDelay = (Math.random()*3).toFixed(2) + "s";
+      s.style.opacity = (0.35 + Math.random()*0.65).toFixed(2);
+      const size = 1 + Math.random()*2.5;
+      s.style.width = size + "px";
+      s.style.height= size + "px";
+      frag.appendChild(s);
+    }
+    sparkles.appendChild(frag);
+  }
+  spawnSparkles(90);
+
+  // Petals
+  const petals = document.querySelector(".petals");
+  function spawnPetal(x){
+    const p = document.createElement("span");
+    p.className = "petal";
+    p.style.left = (x ?? Math.random()*100) + "vw";
+    const dur = 7 + Math.random()*7;
+    const delay = Math.random()*5;
+    const rot = (Math.random()*60 - 30);
+    p.style.animationDuration = dur + "s, " + (3 + Math.random()*2) + "s";
+    p.style.animationDelay = delay + "s, 0s";
+    p.style.transform = `rotate(${rot}deg)`;
+    petals.appendChild(p);
+    // Cleanup after animation
+    once(p, "animationend", ()=> p.remove());
+  }
+  function gentleShower(count=28){ for(let i=0;i<count;i++) spawnPetal(); }
+  gentleShower(26);
+
+  // Balloons
+  const balloons = document.querySelector(".balloons");
+  function spawnBalloon(){
+    const b = document.createElement("span");
+    b.className = "balloon";
+    const colors = ["#ff7eb6","#ffa3a3","#ffd166","#9be7ff","#b5f5a4","#caa1ff"];
+    b.style.setProperty("--balloonColor", colors[Math.floor(Math.random()*colors.length)]);
+    b.style.left = (Math.random()*100) + "vw";
+    b.style.setProperty("--speed", (9 + Math.random()*6).toFixed(2) + "s");
+    b.style.setProperty("--drift", (Math.random()*60 - 30).toFixed(0) + "px");
+    balloons.appendChild(b);
+    once(b, "animationend", ()=> b.remove());
+  }
+  function balloonBurst(n=12){ for(let i=0;i<n;i++) setTimeout(spawnBalloon, i*150); }
+
+  // Pages
+  const pages = Array.from(document.querySelectorAll(".page"));
+  let current = 0;
+
+  const indicator = document.getElementById("indicator");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  function updateIndicator(){
+    indicator.textContent = `Page ${current+1} / ${pages.length}`;
+    // toggle balloons on ballroom page
+    if(pages[current].dataset.bg === "ballroom"){
+      balloons.classList.add("active");
+      // start a gentle balloon spawn
+      for(let i=0;i<8;i++) setTimeout(spawnBalloon, i*500);
+    } else {
+      balloons.classList.remove("active");
+    }
+  }
+
+  function goToPage(idx){
+    if(idx<0 || idx>=pages.length || idx===current) return;
+    const from = pages[current];
+    const to   = pages[idx];
+    const dir = idx > current ? "next" : "prev";
+
+    // Prepare incoming
+    to.style.display = "flex"; // ensure visible
+    if(dir==="next"){
+      from.classList.add("turn-out-left");
+      to.classList.add("turn-in-right");
+    } else {
+      from.classList.add("turn-out-right");
+      to.classList.add("turn-in-left");
+    }
+
+    // When the incoming page animation ends, finalize
+    once(to, "animationend", ()=>{
+      from.classList.remove("active","turn-out-left","turn-out-right");
+      from.style.display = "none";
+      to.classList.remove("turn-in-right","turn-in-left");
+      to.classList.add("active");
+      current = idx;
+      updateIndicator();
+    });
+  }
+
+  prevBtn.addEventListener("click", ()=> goToPage(current-1));
+  nextBtn.addEventListener("click", ()=> goToPage(current+1));
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "ArrowRight") goToPage(current+1);
+    if(e.key === "ArrowLeft") goToPage(current-1);
+    if(e.key.toLowerCase() === "b"){ // Easter egg: balloons
+      if(pages[current].dataset.bg !== "ballroom") balloons.classList.add("active");
+      balloonBurst(14);
+    }
+    if(e.key.toLowerCase() === "r"){ // Easter egg: extra petals
+      gentleShower(36);
+    }
+  });
+
+  // Touch swipe for mobile
+  let touchX = null;
+  document.addEventListener("touchstart", (e)=>{ touchX = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener("touchend", (e)=>{
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 50){
+      if(dx < 0) goToPage(current+1); else goToPage(current-1);
+    }
+    touchX = null;
+  }, {passive:true});
+
+  // Rose secrets
+  const rose = document.getElementById("rose");
+  const roseMsg = document.getElementById("roseMsg");
+  const rose2 = document.getElementById("rose2");
+  const roseMsg2 = document.getElementById("roseMsg2");
+
+  const secrets = [
+    "Your kindness turns every room into a ballroom. 💛",
+    "May every wish you whisper find its way to the stars.",
+    "Your smile is pure magic—never stop shining. ✨",
+    "Courage and kindness are your greatest spells.",
+    "A year of roses, starlight, and sweet surprises awaits.",
+    "You are the star of every story you enter. 🌟",
+    "Even the stars pause to watch you dance.",
+    "Here’s to new adventures—enchanting and bright!"
+  ];
+
+  function popSecret(targetMsgEl){
+    const msg = secrets[Math.floor(Math.random()*secrets.length)];
+    targetMsgEl.textContent = msg;
+    targetMsgEl.classList.remove("show");
+    // trigger reflow to restart animation
+    void targetMsgEl.offsetWidth;
+    targetMsgEl.classList.add("show");
+    // golden sparkle burst
+    burst(targetMsgEl.parentElement);
+  }
+
+  function increaseRoseGlow(roseEl){
+    const emoji = roseEl.querySelector(".rose-emoji");
+    const box = roseEl;
+    const glowSteps = +box.dataset.glow || 0;
+    const extra = Math.min(glowSteps*2.5, 30);
+    emoji.style.filter = `drop-shadow(0 0 ${14+extra}px rgba(255,47,107,1)) drop-shadow(0 0 ${30+extra*1.2}px rgba(255,47,107,0.95))`;
+    box.dataset.glow = glowSteps + 1;
+  }
+
+  function burst(originEl){
+    // create a golden sparkle burst around origin
+    const count = 14;
+    for(let i=0;i<count;i++){
+      const s = document.createElement("span");
+      s.style.position = "absolute";
+      s.style.width = s.style.height = "6px";
+      s.style.borderRadius = "50%";
+      s.style.background = "radial-gradient(circle, #ffe8a3, rgba(255,255,255,0) 65%)";
+      s.style.left = "50%";
+      s.style.top = "50%";
+      s.style.pointerEvents = "none";
+      s.style.filter = "drop-shadow(0 0 6px #ffd166)";
+      const ang = (Math.PI*2) * (i/count);
+      const dist = 20 + Math.random()*30;
+      s.animate([
+        { transform: "translate(-50%, -50%) scale(0.8)", opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(ang)*dist}px), calc(-50% + ${Math.sin(ang)*dist}px)) scale(1.2)`, opacity: 0 }
+      ], { duration: 700, easing:"ease-out" });
+      originEl.appendChild(s);
+      setTimeout(()=> s.remove(), 720);
+    }
+  }
+
+  rose.addEventListener("click", ()=>{
+    popSecret(roseMsg);
+    increaseRoseGlow(rose);
+  });
+  rose2.addEventListener("click", ()=>{
+    popSecret(roseMsg2);
+    increaseRoseGlow(rose2);
+  });
+
+  // Typewriter wishes on Page 5
+  const wishes = [
+    "May your steps be light and your dreams be grand.",
+    "May kindness follow you like golden lanterns.",
+    "May music find you whenever you need a waltz.",
+    "May every day open like a page of your favorite fairy tale.",
+    "Happy Birthday, Rohan — you are loved, always. ✨"
+  ];
+  const typerEl = document.getElementById("typewriter");
+  let twIndex=0, charIndex=0;
+  function typeNext(){
+    if(twIndex >= wishes.length) return;
+    const text = wishes[twIndex];
+    typerEl.textContent = text.slice(0, charIndex) + (charIndex % 2 ? "▋" : " ");
+    charIndex++;
+    if(charIndex <= text.length){
+      setTimeout(typeNext, 42 + Math.random()*28);
+    } else {
+      typerEl.textContent = text; // finalize line
+      twIndex++; charIndex=0;
+      setTimeout(()=>{ typerEl.insertAdjacentHTML("beforeend","<br/>"); typeNext(); }, 600);
+    }
+  }
+
+  // Initialize
+  updateIndicator();
+  // Start typewriter when reaching page 5
+  function maybeStartType(){
+    if(pages[current].dataset.bg === "wishes" && twIndex===0){
+      typeNext();
+    }
+  }
+
+  // Hook into page change after initial
+  const origGoToPage = goToPage;
+  goToPage = function(idx){
+    origGoToPage(idx);
+    // Slight delay to allow current to update in finalize
+    setTimeout(maybeStartType, 950);
+  };
+
+  // Bonus: subtle random petals now and then
+  setInterval(()=> { if(Math.random() < 0.6) spawnPetal(); }, 1600);
+</script>
+</body>
+</html>
